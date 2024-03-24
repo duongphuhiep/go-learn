@@ -24,7 +24,7 @@ var inMemoryWeather = map[string]Weather{
 
 func main() {
 	router := http.NewServeMux()
-	router.HandleFunc("/weather/{city}", func(w http.ResponseWriter, r *http.Request) {
+	router.HandleFunc("GET /weather/{city}", func(w http.ResponseWriter, r *http.Request) {
 		city := r.PathValue("city")
 
 		weather, ok := inMemoryWeather[city]
@@ -44,7 +44,12 @@ func main() {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		w.Write(data)
+
+		if _, err := w.Write(data); err != nil {
+			log.Println(err)
+			fmt.Fprint(w, "Technical error while writing the response")
+			return
+		}
 	})
 
 	server := http.Server{
@@ -52,5 +57,7 @@ func main() {
 		Handler: router,
 	}
 	log.Println("Server listening on port 8080")
-	server.ListenAndServe()
+	if err := server.ListenAndServe(); err != nil {
+		log.Fatal("Error starting server:", err)
+	}
 }
