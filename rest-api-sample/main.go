@@ -16,10 +16,8 @@ import (
 	"github.com/rs/zerolog/log"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/stdout/stdoutmetric"
 	"go.opentelemetry.io/otel/exporters/stdout/stdouttrace"
 	"go.opentelemetry.io/otel/propagation"
-	"go.opentelemetry.io/otel/sdk/metric"
 	"go.opentelemetry.io/otel/sdk/trace"
 )
 
@@ -194,16 +192,6 @@ func setupOTelSDK(ctx context.Context) (shutdown func(context.Context) error, er
 	}
 	shutdownFuncs = append(shutdownFuncs, tracerProvider.Shutdown)
 	otel.SetTracerProvider(tracerProvider)
-
-	// Set up meter provider.
-	meterProvider, err := newMeterProvider()
-	if err != nil {
-		handleErr(err)
-		return
-	}
-	shutdownFuncs = append(shutdownFuncs, meterProvider.Shutdown)
-	otel.SetMeterProvider(meterProvider)
-
 	return
 }
 
@@ -227,18 +215,4 @@ func newTraceProvider() (*trace.TracerProvider, error) {
 			trace.WithBatchTimeout(time.Second)),
 	)
 	return traceProvider, nil
-}
-
-func newMeterProvider() (*metric.MeterProvider, error) {
-	metricExporter, err := stdoutmetric.New()
-	if err != nil {
-		return nil, err
-	}
-
-	meterProvider := metric.NewMeterProvider(
-		metric.WithReader(metric.NewPeriodicReader(metricExporter,
-			// Default is 1m. Set to 3s for demonstrative purposes.
-			metric.WithInterval(3*time.Second))),
-	)
-	return meterProvider, nil
 }
