@@ -1,1 +1,5 @@
-GET http://localhost:8080/weather/LondonTT
+GET http://localhost:8080/weather/London
+
+###
+
+GET http://localhost:8080/panic/true
