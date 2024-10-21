@@ -2,9 +2,11 @@ package main
 
 import (
 	"try-uberfx/core"
+
+	"go.uber.org/fx"
 )
 
 func main() {
-	app := core.BuildApp()
+	app := fx.New(core.BuildCoreModule())
 	app.Run()
 }
