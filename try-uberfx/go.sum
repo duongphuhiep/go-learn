@@ -1,3 +1,9 @@
+github.com/golobby/container/v3 v3.3.2 h1:7u+RgNnsdVlhGoS8gY4EXAG601vpMMzLZlYqSp77Quw=
+github.com/golobby/container/v3 v3.3.2/go.mod h1:RDdKpnKpV1Of11PFBe7Dxc2C1k2KaLE4FD47FflAmj0=
+github.com/samber/do/v2 v2.0.0-beta.7 h1:tmdLOVSCbTA6uGWLU5poi/nZvMRh5QxXFJ9vHytU+Jk=
+github.com/samber/do/v2 v2.0.0-beta.7/go.mod h1:+LpV3vu4L81Q1JMZNSkMvSkW9lt4e5eJoXoZHkeBS4c=
+github.com/samber/go-type-to-string v1.7.0 h1:FiSstaAikHMUSLt5bhVlsvCnD7bbQzC8L0UkkGS3Bj8=
+github.com/samber/go-type-to-string v1.7.0/go.mod h1:jpU77vIDoIxkahknKDoEx9C8bQ1ADnh2sotZ8I4QqBU=
 go.uber.org/dig v1.18.0 h1:imUL1UiY0Mg4bqbFfsRQO5G4CGRBec/ZujWTvSVp3pw=
 go.uber.org/dig v1.18.0/go.mod h1:Us0rSJiThwCv2GteUN0Q7OKvU7n5J4dxZ9JKUXozFdE=
 go.uber.org/fx v1.23.0 h1:lIr/gYWQGfTwGcSXWXu4vP5Ws6iqnNEIY+F/aFzCKTg=

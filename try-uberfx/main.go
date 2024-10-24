@@ -1,12 +1,12 @@
 package main
 
 import (
-	"try-uberfx/core"
+	"try-uberfx/demo1"
 
 	"go.uber.org/fx"
 )
 
 func main() {
-	app := fx.New(core.BuildCoreModule())
+	app := fx.New(demo1.BuildModule())
 	app.Run()
 }

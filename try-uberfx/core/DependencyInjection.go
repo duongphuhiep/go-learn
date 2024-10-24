@@ -4,8 +4,8 @@ import (
 	"go.uber.org/fx"
 )
 
-func BuildCoreModule() fx.Option {
-	coreModule := fx.Module("core",
+func BuildModule() fx.Option {
+	module := fx.Module("core",
 		fx.Provide(
 			fx.Annotate(NewThorWalletRepository, fx.As(new(IWalletRepository)), fx.ResultTags(`name:"thor"`)),
 			fx.Annotate(NewLokiWalletRepository, fx.As(new(IWalletRepository)), fx.ResultTags(`name:"loki"`)),
@@ -20,9 +20,9 @@ func BuildCoreModule() fx.Option {
 		),
 		fx.Invoke(Run),
 	)
-	err := fx.ValidateApp(coreModule)
+	err := fx.ValidateApp(module)
 	if err != nil {
 		panic(err)
 	}
-	return coreModule
+	return module
 }

@@ -5,6 +5,12 @@ go 1.23.1
 require go.uber.org/fx v1.23.0
 
 require (
+	github.com/samber/do/v2 v2.0.0-beta.7 // indirect
+	github.com/samber/go-type-to-string v1.7.0 // indirect
+)
+
+require (
+	github.com/golobby/container/v3 v3.3.2
 	go.uber.org/dig v1.18.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
