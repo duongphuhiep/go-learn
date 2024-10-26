@@ -2,69 +2,86 @@ package demo1
 
 import (
 	"fmt"
+	"log"
 	"sync/atomic"
+
+	"github.com/samber/do/v2"
 )
 
 var counter uint64
+var countIdEnabled = true
+
+func ResetCounter() {
+	atomic.StoreUint64(&counter, 0)
+}
 
 func generateId(prefix string) string {
-	return fmt.Sprintf("%s-%d", prefix, atomic.AddUint64(&counter, 1))
+	if countIdEnabled {
+		return fmt.Sprintf("%s-%d", prefix, atomic.AddUint64(&counter, 1))
+	}
+	return prefix
 }
 
 type A struct {
-	Id string
-	b  *B
-	c  *C
+	id string
+	b  *B `do:""`
+	c  *C `do:""`
 }
 
 func NewA(b *B, c *C) *A {
-	return &A{Id: generateId("A"), b: b, c: c}
+	return &A{id: generateId("A"), b: b, c: c}
 }
 func (this *A) ToString() string {
-	return fmt.Sprintf("%s { %s, %s }", this.Id, this.b.ToString(), this.c.ToString())
+	return fmt.Sprintf("%s { %s, %s }", this.id, this.b.ToString(), this.c.ToString())
 }
 
 type B struct {
-	Id string
-	d  *D
-	e  *E
+	id string
+	d  *D `do:""`
+	e  *E `do:""`
 }
 
 func NewB(d *D, e *E) *B {
-	return &B{Id: generateId("B"), d: d, e: e}
+	return &B{id: generateId("B"), d: d, e: e}
 }
 func (this *B) ToString() string {
-	return fmt.Sprintf("%s { %s, %s }", this.Id, this.d.ToString(), this.e.ToString())
+	return fmt.Sprintf("%s { %s, %s }", this.id, this.d.ToString(), this.e.ToString())
 }
 
 type C struct {
-	Id string
+	id string
 }
 
 func NewC() *C {
-	return &C{Id: generateId("C")}
+	return &C{id: generateId("C")}
 }
 
 func (this *C) ToString() string {
-	return this.Id
+	return this.id
 }
 
 type D struct {
-	Id string
-	f  *F
-	h  *H
+	id string
+	f  *F `do:""`
+	h  *H `do:""`
 }
 
 func NewD(f *F, h *H) *D {
-	return &D{Id: generateId("D"), f: f, h: h}
+	return &D{id: generateId("D"), f: f, h: h}
 }
 func (this *D) ToString() string {
-	return fmt.Sprintf("%s { %s, %s }", this.Id, this.f.ToString(), this.h.ToString())
+	return fmt.Sprintf("%s { %s, %s }", this.id, this.f.ToString(), this.h.ToString())
+}
+
+var _ do.Shutdowner = (*D)(nil)
+
+func (this *D) Shutdown() {
+	log.Println("Shutdown " + this.id)
 }
 
 type E struct {
 	Id string
-	g  []G
+	g  []G `do:""`
 }
 
 func NewE(g []G) *E {
@@ -79,15 +96,21 @@ func (this *E) ToString() string {
 	return resu
 }
 
+var _ do.Shutdowner = (*E)(nil)
+
+func (this *E) Shutdown() {
+	log.Println("Shutdown " + this.Id)
+}
+
 type F struct {
-	Id string
+	id string
 }
 
 func NewF() *F {
-	return &F{Id: generateId("F")}
+	return &F{id: generateId("F")}
 }
 func (this *F) ToString() string {
-	return this.Id
+	return this.id
 }
 
 type G interface {
@@ -98,87 +121,91 @@ type G interface {
 var _ G = (*Ga)(nil)
 
 type Ga struct {
-	Id string
+	id string
 }
 
 func NewGa() *Ga {
-	return &Ga{Id: generateId("Ga")}
+	return &Ga{id: generateId("Ga")}
 }
 func (this *Ga) GetId() string {
-	return this.Id
+	return this.id
 }
 func (this *Ga) ToString() string {
-	return this.Id
+	return this.id
+}
+
+var _ do.Shutdowner = (*Ga)(nil)
+
+func (this *Ga) Shutdown() {
+	log.Println("Shutdown " + this.id)
 }
 
 var _ G = (*Gb)(nil)
 
 type Gb struct {
-	Id string
+	id string
 }
 
 func NewGb() *Gb {
-	return &Gb{Id: generateId("Gb")}
+	return &Gb{id: generateId("Gb")}
 }
 func (this *Gb) ToString() string {
-	return this.Id
+	return this.id
 }
 
 func (this *Gb) GetId() string {
-	return this.Id
+	return this.id
 }
 
 var _ G = (*Gc)(nil)
 
 type Gc struct {
-	Id string
+	id string
 }
 
 func NewGc() *Gc {
-	return &Gc{Id: generateId("Gc")}
+	return &Gc{id: generateId("Gc")}
 }
 func (this *Gc) ToString() string {
-	return this.Id
+	return this.id
 }
 
 func (this *Gc) GetId() string {
-	return this.Id
+	return this.id
 }
 
 var _ G = (*DGa)(nil)
 
 type DGa struct {
-	core *Ga
-	Id   string
+	core *Ga `do:""`
+	id   string
 }
 
 func NewDGa(core *Ga) *DGa {
-	return &DGa{core: core, Id: generateId("DGa")}
+	return &DGa{core: core, id: generateId("DGa")}
 }
 func (this *DGa) ToString() string {
-	return fmt.Sprintf("%s { %s }", this.Id, this.core.ToString())
+	return fmt.Sprintf("%s { %s }", this.id, this.core.ToString())
 }
 
 func (this *DGa) GetId() string {
-	return this.Id
+	return this.id
 }
 
 type H struct {
-	Id string
+	id string
 }
 
 func NewH() *H {
-	return &H{Id: generateId("H")}
+	return &H{id: generateId("H")}
 }
 
 func (this *H) ToString() string {
-	return this.Id
+	return this.id
 }
 
-func CreateA() *A {
-	d := NewD(NewF(), NewH())
-	e := NewE([]G{NewGa(), NewGb(), NewGc()})
-	b := NewB(d, e)
-	c := NewC()
-	return NewA(b, c)
+var _ do.Shutdowner = (*H)(nil)
+
+func (this *H) Shutdown() {
+	log.Println("Shutdown " + this.id)
 }

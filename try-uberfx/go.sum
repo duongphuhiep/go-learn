@@ -1,5 +1,9 @@
+github.com/firasdarwish/ore v0.1.1 h1:Vt3kQrmXUGzJ38haXMNCKzQLIqFtZ7dLl9W5yEmkO7g=
+github.com/firasdarwish/ore v0.1.1/go.mod h1:8Vf1dxtX+jZ7PDwuA43hPcy1hPk2L4lrKZV5N4gex/s=
 github.com/golobby/container/v3 v3.3.2 h1:7u+RgNnsdVlhGoS8gY4EXAG601vpMMzLZlYqSp77Quw=
 github.com/golobby/container/v3 v3.3.2/go.mod h1:RDdKpnKpV1Of11PFBe7Dxc2C1k2KaLE4FD47FflAmj0=
+github.com/samber/do v1.6.0 h1:Jy/N++BXINDB6lAx5wBlbpHlUdl0FKpLWgGEV9YWqaU=
+github.com/samber/do v1.6.0/go.mod h1:DWqBvumy8dyb2vEnYZE7D7zaVEB64J45B0NjTlY/M4k=
 github.com/samber/do/v2 v2.0.0-beta.7 h1:tmdLOVSCbTA6uGWLU5poi/nZvMRh5QxXFJ9vHytU+Jk=
 github.com/samber/do/v2 v2.0.0-beta.7/go.mod h1:+LpV3vu4L81Q1JMZNSkMvSkW9lt4e5eJoXoZHkeBS4c=
 github.com/samber/go-type-to-string v1.7.0 h1:FiSstaAikHMUSLt5bhVlsvCnD7bbQzC8L0UkkGS3Bj8=

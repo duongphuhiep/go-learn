@@ -10,7 +10,9 @@ require (
 )
 
 require (
+	github.com/firasdarwish/ore v0.1.1
 	github.com/golobby/container/v3 v3.3.2
+	github.com/samber/do v1.6.0
 	go.uber.org/dig v1.18.0 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
