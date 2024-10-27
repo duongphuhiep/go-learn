@@ -12,10 +12,12 @@ In my case, I have to work with complex application with a complex dependencies 
 flowchart TD
 A["A<br><sup>(transient)</sup>"]
 B["B<br><sup>(transient)</sup>"]
+C["C<br><sup>(scoped)</sup>"]
 D["D<br><sup>(transient)<br>(shutdowner)</sup>"]
-E["E<br><sup>(shutdowner)</sup>"]
+E["E<br><sup>(scoped)<br>(shutdowner)</sup>"]
 F["F<br><sup>(transient)</sup>"]
 G(["G<br><sup>(interface)</sup>"])
+Gb("Gb<br><sup>(scoped)</sup>")
 Ga("Ga<br><sup>(shutdowner)</sup>")
 DGa("DGa<br><sup>(decorator)</sup>")
 H["H<br><sup>(shutdowner)</sup>"]
@@ -82,7 +84,7 @@ With this use case in mind, I tried some popular DI frameworks to select the rig
   * (-) no automatic wiring => (+) no reflection
 * (+) support transient & Scoped via context => a very natural choice for Go
 * (+) multiple implementation injection is possible
-* (+) very light-weight, more performance, use less memory than samber/do
+* (+) very light-weight: more performance, use less memory than samber/do
 * (-) no handy shutdowner, healthchecker as samber/do
 * (-) too young, not popular
 

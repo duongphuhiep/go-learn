@@ -9,19 +9,22 @@ import (
 	"github.com/samber/do/v2"
 )
 
-func tryore() {
-	demo1.RegisterDependenciesToOre_UseCreator()
-
-	ctx := context.Background()
-	a1, _ := ore.Get[*demo1.A](ctx)
+func runOre(ctx context.Context) {
+	a1, ctx := ore.Get[*demo1.A](ctx)
 	log.Println(a1.ToString())
 	a2, _ := ore.Get[*demo1.A](ctx)
 	log.Println(a2.ToString())
-
-	//injector.Shutdown()
 }
 
-func trydo() {
+func Tryore() {
+	demo1.RegisterDependenciesToOre_UseFunc()
+	log.Println("// root ctx")
+	runOre(context.Background())
+	// log.Println("// other ctx")
+	// runOre(context.Background())
+}
+
+func Trydo() {
 	injector := demo1.BuildSlowContainerWithAutoInjection()
 	a1 := do.MustInvoke[*demo1.A](injector)
 	log.Println(a1.ToString())
@@ -33,8 +36,8 @@ func trydo() {
 
 func main() {
 	log.Println("Ore *******")
-	tryore()
+	Tryore()
 	demo1.ResetCounter()
 	log.Println("Do *******")
-	trydo()
+	Trydo()
 }

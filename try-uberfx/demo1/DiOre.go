@@ -7,12 +7,12 @@ import (
 )
 
 func (this *A) New(ctx context.Context) *A {
-	b, _ := ore.Get[*B](ctx)
+	b, ctx := ore.Get[*B](ctx)
 	c, _ := ore.Get[*C](ctx)
 	return NewA(b, c)
 }
 func (this *B) New(ctx context.Context) *B {
-	d, _ := ore.Get[*D](ctx)
+	d, ctx := ore.Get[*D](ctx)
 	e, _ := ore.Get[*E](ctx)
 	return NewB(d, e)
 }
@@ -20,7 +20,7 @@ func (this *C) New(ctx context.Context) *C {
 	return NewC()
 }
 func (this *D) New(ctx context.Context) *D {
-	f, _ := ore.Get[*F](ctx)
+	f, ctx := ore.Get[*F](ctx)
 	h, _ := ore.Get[*H](ctx)
 	return NewD(f, h)
 }
@@ -50,24 +50,24 @@ func (this *H) New(ctx context.Context) *H {
 
 func RegisterDependenciesToOre_UseFunc() {
 	ore.RegisterLazyFunc(ore.Transient, func(ctx context.Context) *A {
-		b, _ := ore.Get[*B](ctx)
+		b, ctx := ore.Get[*B](ctx)
 		c, _ := ore.Get[*C](ctx)
 		return NewA(b, c)
 	})
 	ore.RegisterLazyFunc(ore.Transient, func(ctx context.Context) *B {
-		d, _ := ore.Get[*D](ctx)
+		d, ctx := ore.Get[*D](ctx)
 		e, _ := ore.Get[*E](ctx)
 		return NewB(d, e)
 	})
-	ore.RegisterLazyFunc(ore.Singleton, func(ctx context.Context) *C {
+	ore.RegisterLazyFunc(ore.Scoped, func(ctx context.Context) *C {
 		return NewC()
 	})
 	ore.RegisterLazyFunc(ore.Transient, func(ctx context.Context) *D {
-		f, _ := ore.Get[*F](ctx)
+		f, ctx := ore.Get[*F](ctx)
 		h, _ := ore.Get[*H](ctx)
 		return NewD(f, h)
 	})
-	ore.RegisterLazyFunc(ore.Singleton, func(ctx context.Context) *E {
+	ore.RegisterLazyFunc(ore.Scoped, func(ctx context.Context) *E {
 		gs, _ := ore.GetList[G](ctx)
 		return NewE(gs)
 	})
@@ -77,7 +77,7 @@ func RegisterDependenciesToOre_UseFunc() {
 	ore.RegisterLazyFunc(ore.Singleton, func(ctx context.Context) *Ga {
 		return NewGa()
 	})
-	ore.RegisterLazyFunc(ore.Singleton, func(ctx context.Context) G {
+	ore.RegisterLazyFunc(ore.Scoped, func(ctx context.Context) G {
 		return NewGb()
 	})
 	ore.RegisterLazyFunc(ore.Singleton, func(ctx context.Context) G {
@@ -95,12 +95,12 @@ func RegisterDependenciesToOre_UseFunc() {
 func RegisterDependenciesToOre_UseCreator() {
 	ore.RegisterLazyCreator(ore.Transient, &A{})
 	ore.RegisterLazyCreator(ore.Transient, &B{})
-	ore.RegisterLazyCreator(ore.Singleton, &C{})
+	ore.RegisterLazyCreator(ore.Scoped, &C{})
 	ore.RegisterLazyCreator(ore.Transient, &D{})
-	ore.RegisterLazyCreator(ore.Singleton, &E{})
+	ore.RegisterLazyCreator(ore.Scoped, &E{})
 	ore.RegisterLazyCreator(ore.Transient, &F{})
 	ore.RegisterLazyCreator(ore.Singleton, &Ga{})
-	ore.RegisterLazyCreator(ore.Singleton, &Gb{})
+	ore.RegisterLazyCreator(ore.Scoped, &Gb{})
 	ore.RegisterLazyCreator(ore.Singleton, &Gc{})
 	ore.RegisterLazyCreator(ore.Singleton, &DGa{})
 	ore.RegisterLazyCreator(ore.Singleton, &H{})
