@@ -45,7 +45,7 @@ Manually write and maintain codes like this `a := NewA(NewB(NewD(NewF(), NewH())
 * to wire thing together and to provide the right `A`, `B`, `C`.. object for me whenever I need them (magically or not I don't care).
 * to minimize the wiring work when `A` or `D` get more dependency in the future...
 
-Lastly, spending some more nano-second on Reflection is the least things I wil have to worry about.
+Lastly, spending some more nano-second on Reflection is the not the things I would have to worry about.
 
 With this use case in mind, I tried some popular DI frameworks to select the right one for me.
 
@@ -71,6 +71,8 @@ With this use case in mind, I tried some popular DI frameworks to select the rig
   * otherwise: instrusive integration / tightly coupled library: adding specialized constructor which take "do.injector" as input
   * automatic wiring requires adding tag `do:""` to the struct (a little slower because of reflection)
 * (+) support transient
+* (+) support package, module
+* (+) possible to use module for scoped life time
 * (-) multi-implementation injection is not possible (a random matching will be choosen)
   * (+) [this feature is on the way to V2](https://github.com/samber/do/pull/45)
 * (-) development seem not very active
@@ -87,10 +89,10 @@ With this use case in mind, I tried some popular DI frameworks to select the rig
 * (+) very light-weight: more performance, use less memory than samber/do
 * (-) no handy shutdowner, healthchecker as samber/do
 * (-) too young, not popular
+* (-) [unable to get ore.scoped works on the complex sample](https://github.com/firasdarwish/ore/issues/2).
 
 => my choice: samber/do because
 
 * I will need "transient" object injection which uber/fx doesn't have.
 * Golobby and other library have great potential but are too unpopular to bet on.
 * I will need the handy shutdowner.. with samber/do, I don't have to handle it by myself
-* I dislike the samber/do "injector" which is in the input of everything.. why not use Context as firasdarwish/ore?

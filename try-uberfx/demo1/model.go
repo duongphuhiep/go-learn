@@ -17,7 +17,7 @@ func ResetCounter() {
 
 func generateId(prefix string) string {
 	if countIdEnabled {
-		return fmt.Sprintf("%s-%d", prefix, atomic.AddUint64(&counter, 1))
+		return fmt.Sprintf("%s-%02d", prefix, atomic.AddUint64(&counter, 1))
 	}
 	return prefix
 }

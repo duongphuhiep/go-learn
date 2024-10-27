@@ -24,13 +24,17 @@ func Tryore() {
 	// runOre(context.Background())
 }
 
+func tryDoOnNewScope(rootScope do.Injector, scopeId string) {
+	scope1 := demo1.NewScopeSlow(rootScope, scopeId)
+	a1 := do.MustInvoke[*demo1.A](scope1)
+	log.Println(scopeId + ".a1=" + a1.ToString())
+	a2 := do.MustInvoke[*demo1.A](scope1)
+	log.Println(scopeId + ".a2=" + a2.ToString())
+}
 func Trydo() {
-	injector := demo1.BuildSlowContainerWithAutoInjection()
-	a1 := do.MustInvoke[*demo1.A](injector)
-	log.Println(a1.ToString())
-	a2 := do.MustInvoke[*demo1.A](injector)
-	log.Println(a2.ToString())
-
+	injector := demo1.BuildFastContainer()
+	tryDoOnNewScope(injector, "scope1")
+	tryDoOnNewScope(injector, "scope2")
 	injector.Shutdown()
 }
 
