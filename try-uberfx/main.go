@@ -26,22 +26,26 @@ func Tryore() {
 
 func tryDoOnNewScope(rootScope do.Injector, scopeId string) {
 	scope1 := demo1.NewScopeSlow(rootScope, scopeId)
-	a1 := do.MustInvoke[*demo1.A](scope1)
-	log.Println(scopeId + ".a1=" + a1.ToString())
-	a2 := do.MustInvoke[*demo1.A](scope1)
-	log.Println(scopeId + ".a2=" + a2.ToString())
+	debugScope := do.ExplainInjector(scope1)
+	println(debugScope.String())
+
+	debugService, found := do.ExplainService[*demo1.E](scope1)
+	if found {
+		println(debugService.String())
+	} else {
+		println("service not found")
+	}
+
+	services := scope1.ListProvidedServices()
+	println(services)
 }
-func Trydo() {
+func Trydo() do.Injector {
 	injector := demo1.BuildFastContainer()
 	tryDoOnNewScope(injector, "scope1")
-	tryDoOnNewScope(injector, "scope2")
 	injector.Shutdown()
+	return injector
 }
 
 func main() {
-	log.Println("Ore *******")
-	Tryore()
-	demo1.ResetCounter()
-	log.Println("Do *******")
 	Trydo()
 }
