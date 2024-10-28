@@ -1,5 +1,7 @@
 github.com/firasdarwish/ore v0.1.1 h1:Vt3kQrmXUGzJ38haXMNCKzQLIqFtZ7dLl9W5yEmkO7g=
 github.com/firasdarwish/ore v0.1.1/go.mod h1:8Vf1dxtX+jZ7PDwuA43hPcy1hPk2L4lrKZV5N4gex/s=
+github.com/firasdarwish/ore v0.2.0 h1:PPk3u+JD68ijwarO24YU7O6vZnywSH+MRo25Ebf+50Q=
+github.com/firasdarwish/ore v0.2.0/go.mod h1:8Vf1dxtX+jZ7PDwuA43hPcy1hPk2L4lrKZV5N4gex/s=
 github.com/golobby/container/v3 v3.3.2 h1:7u+RgNnsdVlhGoS8gY4EXAG601vpMMzLZlYqSp77Quw=
 github.com/golobby/container/v3 v3.3.2/go.mod h1:RDdKpnKpV1Of11PFBe7Dxc2C1k2KaLE4FD47FflAmj0=
 github.com/samber/do v1.6.0 h1:Jy/N++BXINDB6lAx5wBlbpHlUdl0FKpLWgGEV9YWqaU=
