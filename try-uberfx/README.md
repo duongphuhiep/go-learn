@@ -96,3 +96,9 @@ With this use case in mind, I tried some popular DI frameworks to select the rig
 * I will need "transient" object injection which uber/fx doesn't have.
 * Golobby and other library have great potential but are too unpopular to bet on.
 * I will need the handy shutdowner.. with samber/do, I don't have to handle it by myself
+
+## Run benchmark
+
+```sh
+go test -benchmem -bench . try-uberfx/demo1
+```

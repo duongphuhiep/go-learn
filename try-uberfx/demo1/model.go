@@ -76,19 +76,21 @@ func (this *D) ToString() string {
 var _ do.Shutdowner = (*D)(nil)
 
 func (this *D) Shutdown() {
-	log.Println("Shutdown " + this.id)
+	if countIdEnabled {
+		log.Println("Shutdown " + this.id)
+	}
 }
 
 type E struct {
-	Id string
+	id string
 	g  []G `do:""`
 }
 
 func NewE(g []G) *E {
-	return &E{Id: generateId("E"), g: g}
+	return &E{id: generateId("E"), g: g}
 }
 func (this *E) ToString() string {
-	resu := this.Id + "{ "
+	resu := this.id + "{ "
 	for _, gItem := range this.g {
 		resu += gItem.ToString() + ", "
 	}
@@ -99,7 +101,9 @@ func (this *E) ToString() string {
 var _ do.Shutdowner = (*E)(nil)
 
 func (this *E) Shutdown() {
-	log.Println("Shutdown " + this.Id)
+	if countIdEnabled {
+		log.Println("Shutdown " + this.id)
+	}
 }
 
 type F struct {
@@ -137,7 +141,9 @@ func (this *Ga) ToString() string {
 var _ do.Shutdowner = (*Ga)(nil)
 
 func (this *Ga) Shutdown() {
-	log.Println("Shutdown " + this.id)
+	if countIdEnabled {
+		log.Println("Shutdown " + this.id)
+	}
 }
 
 var _ G = (*Gb)(nil)
@@ -207,5 +213,7 @@ func (this *H) ToString() string {
 var _ do.Shutdowner = (*H)(nil)
 
 func (this *H) Shutdown() {
-	log.Println("Shutdown " + this.id)
+	if countIdEnabled {
+		log.Println("Shutdown " + this.id)
+	}
 }
