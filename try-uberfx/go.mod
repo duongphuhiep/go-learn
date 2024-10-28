@@ -2,15 +2,15 @@ module try-uberfx
 
 go 1.23.1
 
-require go.uber.org/fx v1.23.0
-
 require (
-	github.com/samber/do/v2 v2.0.0-beta.7 // indirect
-	github.com/samber/go-type-to-string v1.7.0 // indirect
+	github.com/samber/do/v2 v2.0.0-beta.7
+	go.uber.org/fx v1.23.0
 )
 
+require github.com/samber/go-type-to-string v1.7.0 // indirect
+
 require (
-	github.com/firasdarwish/ore v0.1.1
+	github.com/firasdarwish/ore v0.2.0
 	github.com/golobby/container/v3 v3.3.2
 	github.com/samber/do v1.6.0
 	go.uber.org/dig v1.18.0 // indirect

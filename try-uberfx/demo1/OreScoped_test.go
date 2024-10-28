@@ -15,14 +15,14 @@ type S1 struct {
 }
 
 func TestScoped(t *testing.T) {
-	ore.RegisterLazyFunc(ore.Transient, func(ctx context.Context) *T1 {
+	ore.RegisterLazyFunc(ore.Transient, func(ctx context.Context) (*T1, context.Context) {
 		s1, _ := ore.Get[*S1](ctx)
 		return &T1{
 			s1: s1,
-		}
+		}, ctx
 	})
-	ore.RegisterLazyFunc(ore.Scoped, func(ctx context.Context) *S1 {
-		return &S1{}
+	ore.RegisterLazyFunc(ore.Scoped, func(ctx context.Context) (*S1, context.Context) {
+		return &S1{}, ctx
 	})
 
 	t1a, ctx := ore.Get[*T1](context.Background())
