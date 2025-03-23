@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WebSocket Client</title>
+  </head>
+  <body>
+    <h1>WebSocket Client</h1>
+    <button id="sendButton">Send "hello"</button>
+    <ul id="messages"></ul>
+
+    <h1>SSE event</h1>
+    <ul id="flow"></ul>
+
+    <script>
+      const ws = new WebSocket("ws://localhost:8080/ws");
+
+      ws.onopen = () => {
+        console.log("WebSocket connection established");
+      };
+
+      const websocketMessages = document.getElementById("messages");
+      ws.onmessage = (event) => {
+        const messageItem = document.createElement("li");
+        messageItem.textContent = event.data;
+        websocketMessages.appendChild(messageItem);
+      };
+
+      ws.onclose = () => {
+        console.log("WebSocket connection closed");
+      };
+
+      document.getElementById("sendButton").addEventListener("click", () => {
+        ws.send("hello");
+      });
+
+      const eventSource = new EventSource("/events");
+
+      const sseMessages = document.getElementById("flow");
+      eventSource.onmessage = (event) => {
+        console.log(`Message received: ${event.data}`);
+        const messageItem = document.createElement("li");
+        messageItem.textContent = "Got:" + event.data;
+        sseMessages.appendChild(messageItem);
+      };
+
+      eventSource.onerror = () => {
+        console.error("Error occurred with SSE connection.");
+      };
+    </script>
+  </body>
+</html>
