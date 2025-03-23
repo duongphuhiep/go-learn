@@ -63,10 +63,10 @@ func (this *C) ToString() string {
 type D struct {
 	id string
 	f  *F `do:""`
-	h  *H `do:""`
+	h  H  `do:""`
 }
 
-func NewD(f *F, h *H) *D {
+func NewD(f *F, h H) *D {
 	return &D{id: generateId("D"), f: f, h: h}
 }
 func (this *D) ToString() string {
@@ -198,21 +198,42 @@ func (this *DGa) GetId() string {
 	return this.id
 }
 
-type H struct {
+type H interface {
+	do.Shutdowner
+	ToString() string
+}
+
+type Hr struct {
 	id string
 }
 
-func NewH() *H {
-	return &H{id: generateId("H")}
-}
+var _ H = (*Hr)(nil)
 
-func (this *H) ToString() string {
+func NewHr() *Hr {
+	return &Hr{id: generateId("Hr")}
+}
+func (this *Hr) ToString() string {
 	return this.id
 }
+func (this *Hr) Shutdown() {
+	if countIdEnabled {
+		log.Println("Shutdown " + this.id)
+	}
+}
 
-var _ do.Shutdowner = (*H)(nil)
+type Hm struct {
+	id string
+}
 
-func (this *H) Shutdown() {
+var _ H = (*Hm)(nil)
+
+func NewHm() *Hm {
+	return &Hm{id: generateId("Hm")}
+}
+func (this *Hm) ToString() string {
+	return this.id
+}
+func (this *Hm) Shutdown() {
 	if countIdEnabled {
 		log.Println("Shutdown " + this.id)
 	}

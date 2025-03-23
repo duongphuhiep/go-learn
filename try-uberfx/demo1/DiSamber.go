@@ -16,8 +16,8 @@ func BuildSlowContainer() do.Injector {
 		resu.id = generateId("F")
 		return resu, nil
 	})
-	do.Provide(injector, func(inj do.Injector) (*H, error) {
-		resu := do.MustInvokeStruct[H](inj)
+	do.Provide(injector, func(inj do.Injector) (H, error) {
+		resu := do.MustInvokeStruct[Hr](inj)
 		resu.id = generateId("H")
 		return resu, nil
 	})
@@ -42,13 +42,13 @@ func BuildSlowContainer() do.Injector {
 func BuildFastContainer() do.Injector {
 	injector := do.New()
 	do.ProvideTransient(injector, func(inj do.Injector) (*D, error) {
-		return NewD(do.MustInvoke[*F](inj), do.MustInvoke[*H](inj)), nil
+		return NewD(do.MustInvoke[*F](inj), do.MustInvoke[H](inj)), nil
 	})
 	do.ProvideTransient(injector, func(inj do.Injector) (*F, error) {
 		return NewF(), nil
 	})
-	do.Provide(injector, func(inj do.Injector) (*H, error) {
-		return NewH(), nil
+	do.Provide(injector, func(inj do.Injector) (H, error) {
+		return NewHr(), nil
 	})
 	do.Provide(injector, func(inj do.Injector) (*Ga, error) {
 		return NewGa(), nil

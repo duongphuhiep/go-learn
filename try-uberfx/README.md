@@ -2,8 +2,8 @@
 
 While Dependency Injection and IoC is first-class paradigm in GO, many "Gophers" paradoxically dislike DI frameworks and DI containers. Their arguments are usually:
 
-* you don't need a DI framework because Go itself provided enough support to practice DI.
-* these frameworks are too "magical", go against Go idiomatique.
+* a DI framework is useless because Go itself provided enough support to practice DI.
+* these frameworks are too "magical", not Go idioms.
 * reflection are bad, hurts perf.
 
 In my case, I have to work with complex application with a complex dependencies such as:
@@ -20,14 +20,18 @@ G(["G<br><sup>(interface)</sup>"])
 Gb("Gb<br><sup>(scoped)</sup>")
 Ga("Ga<br><sup>(shutdowner)</sup>")
 DGa("DGa<br><sup>(decorator)</sup>")
-H["H<br><sup>(shutdowner)</sup>"]
+H(["H<br><sup>(interface)<br>(shutdowner)</sup>"])
+Hr["Hr<br><sup>(real)</sup>"]
+Hm["Hm<br><sup>(mock)</sup>"]
 
 A-->B
 A-->C
 B-->D
 B-->E
-D-->F
 D-->H
+D-->F
+Hr -.implement..-> H
+Hm -.implement..-> H
 E-->DGa
 E-->Gb
 E-->Gc
@@ -45,7 +49,7 @@ Manually write and maintain codes like this `a := NewA(NewB(NewD(NewF(), NewH())
 * to wire thing together and to provide the right `A`, `B`, `C`.. object for me whenever I need them (magically or not I don't care).
 * to minimize the wiring work when `A` or `D` get more dependency in the future...
 
-Lastly, spending some more nano-second on Reflection is the not the things I would have to worry about.
+Lastly, spending some more micro-seconds on Reflection is alright for me (I'd rather optimize cache, database.. to gain more speed).
 
 With this use case in mind, I tried some popular DI frameworks to select the right one for me.
 
@@ -86,10 +90,11 @@ With this use case in mind, I tried some popular DI frameworks to select the rig
   * (-) no automatic wiring => (+) no reflection
 * (+) support transient & Scoped via context => a very natural choice for Go
 * (+) multiple implementation injection is possible
-* (+) very light-weight: more performance, use less memory than samber/do
+* (+) very light-weight & performance: far more than samber/do.
+* (+) familiar behavior for .NET developers
+* (-) no service aliasing: Register struct, Get (multiple) interfaces
 * (-) no handy shutdowner, healthchecker as samber/do
 * (-) too young, not popular
-* (-) [unable to get ore.scoped works on the complex sample](https://github.com/firasdarwish/ore/issues/2).
 
 => my choice: samber/do because
 
@@ -102,3 +107,39 @@ With this use case in mind, I tried some popular DI frameworks to select the rig
 ```sh
 go test -benchmem -bench . try-uberfx/demo1
 ```
+
+## Idea
+
+### Service aliasing
+
+1) Implicite: Register struct, Get interfaces
+
+```go
+//MyDisposableEngine implements IDisposable and IEngine
+ore.RegisterLazyFunc(ore.Singleton, func(ctx context.Context) (*MyDisposableEngine, context.Context) {
+  return MyDisposableEngine(), ctx
+})
+disposable, _ := ore.Get[IDisposable](ctx)
+disposable, _ := ore.Get[IEngine](ctx)
+```
+
+2) Or Explicit
+
+```go
+//MyDisposableEngine implements IDisposable and IEngine
+ore.RegisterLazyFunc(ore.Singleton, func(ctx context.Context) (*MyDisposableEngine, context.Context) {
+  return MyDisposableEngine(), ctx
+}).As[IDisposable]().As[IEngine]()
+disposable, _ := ore.Get[IDisposable](ctx)
+disposable, _ := ore.Get[IEngine](ctx)
+```
+
+### ore.Validate
+
+```go
+ore.Validate(ValidateOptions{checkDepsLifeTime: true, checkCircularDeps: true, checkMissingDeps: true})
+```
+
+* check if a service with longer lifetime should not depend on a services with shorter lifetime. For eg a Singleton depends on Scoped or Transient is a big security risk.
+* warning about circular deps
+* warning about missing deps

@@ -21,7 +21,7 @@ func (this *C) New(ctx context.Context) (*C, context.Context) {
 }
 func (this *D) New(ctx context.Context) (*D, context.Context) {
 	f, ctx := ore.Get[*F](ctx)
-	h, ctx := ore.Get[*H](ctx)
+	h, ctx := ore.Get[*Hr](ctx)
 	return NewD(f, h), ctx
 }
 func (this *E) New(ctx context.Context) (*E, context.Context) {
@@ -44,8 +44,8 @@ func (this *DGa) New(ctx context.Context) (G, context.Context) {
 	ga, ctx := ore.Get[*Ga](ctx)
 	return NewDGa(ga), ctx
 }
-func (this *H) New(ctx context.Context) (*H, context.Context) {
-	return NewH(), ctx
+func (this *Hr) New(ctx context.Context) (H, context.Context) {
+	return NewHr(), ctx
 }
 
 func RegisterDependenciesToOre_UseFunc() {
@@ -64,7 +64,7 @@ func RegisterDependenciesToOre_UseFunc() {
 	})
 	ore.RegisterLazyFunc(ore.Transient, func(ctx context.Context) (*D, context.Context) {
 		f, ctx := ore.Get[*F](ctx)
-		h, ctx := ore.Get[*H](ctx)
+		h, ctx := ore.Get[H](ctx)
 		return NewD(f, h), ctx
 	})
 	ore.RegisterLazyFunc(ore.Scoped, func(ctx context.Context) (*E, context.Context) {
@@ -87,8 +87,8 @@ func RegisterDependenciesToOre_UseFunc() {
 		ga, ctx := ore.Get[*Ga](ctx)
 		return NewDGa(ga), ctx
 	})
-	ore.RegisterLazyFunc(ore.Singleton, func(ctx context.Context) (*H, context.Context) {
-		return NewH(), ctx
+	ore.RegisterLazyFunc(ore.Singleton, func(ctx context.Context) (H, context.Context) {
+		return NewHr(), ctx
 	})
 }
 
@@ -103,5 +103,5 @@ func RegisterDependenciesToOre_UseCreator() {
 	ore.RegisterLazyCreator(ore.Scoped, &Gb{})
 	ore.RegisterLazyCreator(ore.Singleton, &Gc{})
 	ore.RegisterLazyCreator(ore.Singleton, &DGa{})
-	ore.RegisterLazyCreator(ore.Singleton, &H{})
+	ore.RegisterLazyCreator(ore.Singleton, &Hr{})
 }

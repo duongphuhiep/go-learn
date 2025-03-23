@@ -18,13 +18,19 @@ func runOre(ctx context.Context) {
 
 func Tryore() {
 	demo1.RegisterDependenciesToOre_UseFunc()
-	log.Println("// root ctx")
+	log.Println("// ctx 1")
 	runOre(context.Background())
-	// log.Println("// other ctx")
-	// runOre(context.Background())
+
+	log.Println("// ctx 2 with mock")
+	ore.RegisterLazyFunc(ore.Singleton, func(ctx context.Context) (demo1.H, context.Context) {
+		return demo1.NewHm(), ctx
+	})
+	runOre(context.Background())
+	log.Println("// ctx 3 with mock")
+	runOre(context.Background())
 }
 
-func tryDoOnNewScope(rootScope do.Injector, scopeId string) {
+func runDo(rootScope do.Injector, scopeId string) {
 	scope1 := demo1.NewScopeSlow(rootScope, scopeId)
 	a1 := do.MustInvoke[*demo1.A](scope1)
 	log.Println(scopeId + ".a1=" + a1.ToString())
@@ -33,15 +39,22 @@ func tryDoOnNewScope(rootScope do.Injector, scopeId string) {
 }
 func Trydo() {
 	injector := demo1.BuildFastContainer()
-	tryDoOnNewScope(injector, "scope1")
-	tryDoOnNewScope(injector, "scope2")
+	log.Println("//scope1")
+	runDo(injector, "scope1")
+
+	log.Println("//scope2 with mock")
+	do.Override(injector, func(inj do.Injector) (demo1.H, error) {
+		return demo1.NewHm(), nil
+	})
+	runDo(injector, "scope2")
 	injector.Shutdown()
 }
 
 func main() {
+	//circulardeps.CircularDepsOre()
 	log.Println("Ore *******")
 	Tryore()
-	demo1.ResetCounter()
-	log.Println("Do *******")
-	Trydo()
+	// demo1.ResetCounter()
+	// log.Println("Do *******")
+	// Trydo()
 }
