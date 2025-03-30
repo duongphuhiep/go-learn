@@ -1,10 +1,14 @@
 # Websocket and Server Sent Event "Hello World"
 
+Run in Dev mod to have a more human-readable log messages in the stdout
+
+```sh
+env $(cat .env.development | xargs) go run main.go
+```
+
 ## Websocket
 
 WebSocket provides full-duplex, bidirectional communication over a single, persistent connection. It is ideal for scenarios where low latency and high-frequency communication are required.
-
-aaa
 
 ## Server-Sent Events (SSE)
 

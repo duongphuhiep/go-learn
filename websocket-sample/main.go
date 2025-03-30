@@ -77,22 +77,43 @@ func handleSSE(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	// Configure slog to write logs to stdout
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-		Level:     slog.LevelDebug, // Set minimum log level to Debug
-		AddSource: true,            // Include source position (file and line number)
-	}))
-	slog.SetDefault(logger)
+	setupLogging()
 
 	// Serve static files (HTML, JS, CSS, etc.) from the current directory
 	fs := http.FileServer(http.Dir("."))
+	slog.Info("Server started at http://localhost:8080")
 	http.Handle("/", fs)
 
 	// WebSocket endpoint
+	slog.Info("WebSocket endpoint: ws://localhost:8080/ws")
 	http.HandleFunc("/ws", handleWebSocket)
 
+	// Server-Sent Events endpoint
+	slog.Info("Server-Sent Events endpoint: http://localhost:8080/events")
 	http.HandleFunc("/events", handleSSE)
-	fmt.Println("Server started at http://localhost:8080")
-	fmt.Println("WebSocket endpoint: ws://localhost:8080/ws")
+
 	log.Fatal(http.ListenAndServe(":8080", nil))
+}
+
+// Configure slog to write logs to stdout
+func setupLogging() {
+	var handler slog.Handler
+	if isDev() {
+		handler = slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
+			Level:     slog.LevelDebug, // Set desired log level
+			AddSource: false,           // Show file and line number
+		})
+	} else {
+		handler = slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+			Level:     slog.LevelInfo,
+			AddSource: true, // Show file and line number
+		})
+	}
+	logger := slog.New(handler)
+	slog.SetDefault(logger)
+}
+
+// isDev checks if the environment is development.
+func isDev() bool {
+	return os.Getenv("APP_ENV") == "development"
 }
