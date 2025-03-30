@@ -4,6 +4,8 @@
 
 WebSocket provides full-duplex, bidirectional communication over a single, persistent connection. It is ideal for scenarios where low latency and high-frequency communication are required.
 
+aaa
+
 ## Server-Sent Events (SSE)
 
 SSE is a server-to-client, unidirectional communication protocol. It allows the server to push updates to the client over a single, long-lived HTTP connection.

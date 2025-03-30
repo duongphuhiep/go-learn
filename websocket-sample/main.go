@@ -5,6 +5,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -39,8 +40,12 @@ func handleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 		/*messageType can have the following value:  websocket.TextMessage (value 1), websocket.BinaryMessage (value 2), websocket.CloseMessage (value 8), websocket.PingMessage (value 9), websocket.PongMessage (value 10) */
 		if messageStr == "hello" {
-			conn.WriteMessage(messageType, []byte("hello back"))
-			conn.WriteMessage(messageType, []byte("my name is websocket"))
+			if err = conn.WriteMessage(messageType, []byte("hello back")); err != nil {
+				slog.Warn("WriteMessage error", "error", err)
+			}
+			if err := conn.WriteMessage(messageType, []byte("my name is websocket")); err != nil {
+				slog.Warn("WriteMessage error", "error", err)
+			}
 		}
 	}
 }
@@ -72,14 +77,21 @@ func handleSSE(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// Configure slog to write logs to stdout
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level:     slog.LevelDebug, // Set minimum log level to Debug
+		AddSource: true,            // Include source position (file and line number)
+	}))
+	slog.SetDefault(logger)
+
 	// Serve static files (HTML, JS, CSS, etc.) from the current directory
 	fs := http.FileServer(http.Dir("."))
 	http.Handle("/", fs)
 
 	// WebSocket endpoint
 	http.HandleFunc("/ws", handleWebSocket)
-	http.HandleFunc("/events", handleSSE)
 
+	http.HandleFunc("/events", handleSSE)
 	fmt.Println("Server started at http://localhost:8080")
 	fmt.Println("WebSocket endpoint: ws://localhost:8080/ws")
 	log.Fatal(http.ListenAndServe(":8080", nil))
