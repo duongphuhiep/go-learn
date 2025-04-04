@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Push Notification Demo</title>
+  </head>
+  <body>
+    <button id="subscribeBtn">Enable Push Notifications</button>
+    <div id="notifications"></div>
+    <script>
+      const VAPID_PUBLIC_KEY =
+        "BIlQKyaTvb5GVgA-kw4URKBWAEWRS-OiC8jsXUg0eKgsFBGxk4MY90qzdIdtzFxWOfxLrD8LY_eTsDx3jRcsYaU";
+
+      if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+        alert("Push notifications are not supported in this browser.");
+      }
+
+      let reg;
+
+      document.addEventListener("DOMContentLoaded", async () => {
+        // Register Service Worker
+        reg = await navigator.serviceWorker.register("/sw.js");
+        console.log("Service Worker registered", reg);
+
+        // Listen for notifications (the Service Worker triggers them)
+        navigator.serviceWorker.addEventListener("message", (event) => {
+          console.log("Message from service worker:", event.data);
+          // Check if the message is a notification
+          if (event.data && event.data.type === "NOTIFICATION") {
+            appendNotification(event.data.payload);
+          }
+        });
+      });
+      
+      document
+        .getElementById("subscribeBtn")
+        .addEventListener("click", async () => {
+          if (!reg) {
+            console.error("Service Worker not registered");
+            return;
+          }
+          // Request permission
+          const permission = await Notification.requestPermission();
+          if (permission !== "granted") {
+            throw new Error("Permission denied");
+          }
+
+          // Subscribe to push notifications
+          const subscription = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+          });
+
+          // Send subscription to backend
+          await fetch("/subscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(subscription),
+          });
+          console.log("Subscribed to push notifications!");
+        });
+
+      // Helper: Convert VAPID public key (Base64 → Uint8Array)
+      function urlBase64ToUint8Array(base64String) {
+        const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+        const base64 = (base64String + padding)
+          .replace(/-/g, "+")
+          .replace(/_/g, "/");
+        const rawData = atob(base64);
+        return new Uint8Array([...rawData].map((char) => char.charCodeAt(0)));
+      }
+
+      // Append notification to DOM
+      function appendNotification(data) {
+        const notificationsDiv = document.getElementById("notifications");
+        const notificationElement = document.createElement("div");
+        notificationElement.className = "notification";
+        notificationElement.innerHTML = `
+                <strong>${data.title}</strong><br>
+                <span>${data.body}</span>
+                <small>${new Date().toLocaleTimeString()}</small>
+            `;
+        notificationsDiv.appendChild(notificationElement);
+      }
+    </script>
+  </body>
+</html>

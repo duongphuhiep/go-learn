@@ -76,23 +76,25 @@ func handleSSE(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+const PORT = ":8080"
+
 func main() {
 	setupLogging()
 
 	// Serve static files (HTML, JS, CSS, etc.) from the current directory
 	fs := http.FileServer(http.Dir("."))
-	slog.Info("Server started at http://localhost:8080")
+	slog.Info("Server started at http://localhost" + PORT)
 	http.Handle("/", fs)
 
 	// WebSocket endpoint
-	slog.Info("WebSocket endpoint: ws://localhost:8080/ws")
+	slog.Info("WebSocket endpoint: ws://localhost" + PORT + "/ws")
 	http.HandleFunc("/ws", handleWebSocket)
 
 	// Server-Sent Events endpoint
-	slog.Info("Server-Sent Events endpoint: http://localhost:8080/events")
+	slog.Info("Server-Sent Events endpoint: http://localhos" + PORT + "/events")
 	http.HandleFunc("/events", handleSSE)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(PORT, nil))
 }
 
 // Configure slog to write logs to stdout
