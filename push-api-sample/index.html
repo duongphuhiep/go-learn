@@ -4,6 +4,7 @@
     <title>Push Notification Demo</title>
   </head>
   <body>
+    <button id="pingBtn">Ping Service Worker</button>
     <button id="subscribeBtn">Enable Push Notifications</button>
     <div id="notifications"></div>
     <script>
@@ -30,7 +31,13 @@
           }
         });
       });
-      
+
+      // Ping button click handler
+      const pingButton = document.getElementById("pingBtn");
+      pingButton.addEventListener("click", () => {
+        navigator.serviceWorker.controller.postMessage("Ping");
+      });
+
       document
         .getElementById("subscribeBtn")
         .addEventListener("click", async () => {
