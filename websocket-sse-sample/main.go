@@ -91,7 +91,7 @@ func main() {
 	http.HandleFunc("/ws", handleWebSocket)
 
 	// Server-Sent Events endpoint
-	slog.Info("Server-Sent Events endpoint: http://localhos" + PORT + "/events")
+	slog.Info("Server-Sent Events endpoint: http://localhost" + PORT + "/events")
 	http.HandleFunc("/events", handleSSE)
 
 	log.Fatal(http.ListenAndServe(PORT, nil))
