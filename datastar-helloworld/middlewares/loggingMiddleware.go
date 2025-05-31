@@ -25,11 +25,8 @@ type responseWriter struct {
 
 var _ http.ResponseWriter = (*responseWriter)(nil)
 
-const maxResponseBodySize int = 1024 * 2  // 2 KB
-const maxResponseBodyTrunkSize int = 1024 // 1 KB
-
-// const maxResponseBodySize int = 256
-// const maxResponseBodyTrunkSize int = 64
+const maxResponseBodySize int = 1024 * 10     // 10 KB
+const maxResponseBodyTrunkSize int = 1024 * 2 // 2 KB
 
 func (rw *responseWriter) WriteHeader(code int) {
 	rw.statusCode = code
@@ -43,13 +40,15 @@ func (rw *responseWriter) WriteHeader(code int) {
 
 func (rw *responseWriter) Write(b []byte) (int, error) {
 	var trunkContent string
-	if len(b) > maxResponseBodyTrunkSize {
+	if maxResponseBodyTrunkSize <= 0 {
+		trunkContent = ""
+	} else if len(b) > maxResponseBodyTrunkSize {
 		trunkContent = (string)(b[:maxResponseBodyTrunkSize]) + "... [truncated]"
 	} else {
 		trunkContent = string(b)
 	}
 
-	// Prepare header fields for structured logging
+	// Log the response trunk content
 	rw.logger.InfoContext(rw.ctx, fmt.Sprintf("HTTP Response trunk %s", rw.url),
 		appendHeader([]any{
 			"response.status", rw.statusCode,
@@ -58,7 +57,7 @@ func (rw *responseWriter) Write(b []byte) (int, error) {
 	)
 
 	// Only buffer a limited amount for SSE to avoid memory issues
-	if rw.body.Len() < maxResponseBodySize {
+	if rw.body.Len() < maxResponseBodySize && maxResponseBodySize > 0 {
 		remainingSpace := maxResponseBodySize - rw.body.Len()
 		if len(b) <= remainingSpace {
 			rw.body.Write(b)
@@ -85,7 +84,9 @@ func appendHeader(initAttrs []any, prefix string, header http.Header) []any {
 	return initAttrs
 }
 
-// loggingMiddleware creates a middleware that logs requests and responses with SSE support
+// loggingMiddleware creates a middleware that logs requests and responses.
+// It also creates a new OpenTelemetry span to correlate the request and the response logs via the trace_id.
+// You won't have this trace_id if you use a noop trace provider: `oteltracenoop.NewTracerProvider()`
 func LoggingMiddleware(next http.Handler) http.Handler {
 	tracer := otel.Tracer("http-middleware")
 
