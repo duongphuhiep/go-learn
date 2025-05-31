@@ -12,7 +12,7 @@
     <input data-bind-myinput />
     <p data-text="$myinput"></p>
     <button data-on-click="$myinput = ''">Reset on Client</button>
-    <button data-on-click="@get('/actions/setinput')">Server Set Input</button>
+    <button data-on-click="@post('/actions/setinput')">Server Set Input</button>
     <button data-on-click="@post('/actions/notfound')">Not Found</button>
   </body>
 </html>

@@ -126,7 +126,7 @@ func main() {
 	mux.HandleFunc("GET /", homeHandler)
 
 	// Apply LoggingMiddleware only to /actions/setinput
-	mux.Handle("GET /actions/setinput", m.LoggingMiddleware(http.HandlerFunc(setInputHandler)))
+	mux.Handle("POST /actions/setinput", m.LoggingMiddleware(http.HandlerFunc(setInputHandler)))
 
 	slog.Info("Starting server on :8080")
 	http.ListenAndServe(":8080", mux)
