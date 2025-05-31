@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -76,6 +77,42 @@ func initLogger(ctx context.Context) func() {
 
 var globalReqId = 0
 
+type Store struct {
+	Myinput string `json:"myinput"` // delay in milliseconds between each character of the message.
+}
+
+func setInputHandler(w http.ResponseWriter, r *http.Request) {
+	store := &Store{}
+	//deserialize signals state
+	if err := datastar.ReadSignals(r, store); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	globalReqId++
+	reqId := strconv.Itoa(globalReqId)
+	slog.InfoContext(r.Context(), "Received input from client "+reqId, "myinput", store.Myinput)
+	sse := datastar.NewSSE(w, r)
+	for range 5 {
+		slog.InfoContext(r.Context(), "Send response for "+reqId)
+
+		//update the state with new value
+		store.Myinput = fmt.Sprintf("%s - time on server is %s", reqId, time.Now().Format(time.RFC3339))
+
+		//merge the new signals state back to the client
+		newStoreBytes, err := json.Marshal(store)
+		if err != nil {
+			panic(err)
+		}
+		sse.MergeSignals(newStoreBytes)
+
+		time.Sleep(2 * time.Second)
+	}
+}
+
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	w.Write(helloWorldHTML)
+}
+
 func main() {
 	ctx := context.Background()
 
@@ -86,39 +123,11 @@ func main() {
 	defer loggerDispose()
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /", homeHandler)
 
-	type Store struct {
-		Myinput string `json:"myinput"` // delay in milliseconds between each character of the message.
-	}
-
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write(helloWorldHTML)
-	})
-
-	mux.HandleFunc("/actions/setinput", func(w http.ResponseWriter, r *http.Request) {
-		store := &Store{}
-		if err := datastar.ReadSignals(r, store); err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
-		}
-		globalReqId++
-		reqId := strconv.Itoa(globalReqId)
-		slog.InfoContext(r.Context(), "Received input from client "+reqId, "myinput", store.Myinput)
-		sse := datastar.NewSSE(w, r)
-		for range 5 {
-			slog.InfoContext(r.Context(), "Send response for "+reqId)
-			greetMsg := fmt.Sprintf("%s - time on server is %s", reqId, time.Now().Format(time.RFC3339))
-			err := sse.MergeSignals([]byte(`{myinput: '` + greetMsg + `'}`))
-			if err != nil {
-				panic(err)
-			}
-			time.Sleep(2 * time.Second)
-		}
-	})
-
-	// Wrap the mux with the logging middleware
-	loggedMux := m.LoggingMiddleware(mux)
+	// Apply LoggingMiddleware only to /actions/setinput
+	mux.Handle("GET /actions/setinput", m.LoggingMiddleware(http.HandlerFunc(setInputHandler)))
 
 	slog.Info("Starting server on :8080")
-	http.ListenAndServe(":8080", loggedMux)
+	http.ListenAndServe(":8080", mux)
 }

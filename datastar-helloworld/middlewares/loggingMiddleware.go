@@ -102,13 +102,13 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 		)
 		defer span.End()
 
-		// Prepare request headers as logger attributes with "requestHeader." prefix
+		// Prepare a new logger for this request with the request details
 		logger := slog.With(appendHeader([]any{
 			"request.method", r.Method,
 			"request.url", r.URL.String(),
 		}, "request.", r.Header)...)
 
-		// Read and log request body
+		// Read the request body
 		var requestBody []byte
 		if r.Body != nil {
 			requestBody, _ = io.ReadAll(r.Body)
@@ -116,11 +116,10 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 			r.Body = io.NopCloser(bytes.NewBuffer(requestBody))
 		}
 
-		// Log the request with correlation ID
+		// Log the request
 		logger.InfoContext(ctx, fmt.Sprintf("HTTP Request %s  %s", r.Method, r.URL),
 			"request.body", string(requestBody),
 		)
-		//slog.InfoContext(ctx, fmt.Sprintf("HTTP Request with defaultLogger %s  %s", r.Method, r.URL))
 
 		// Add span attributes for request body
 		if len(requestBody) > 0 {
@@ -149,15 +148,25 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 			attribute.String("http.response.body", rw.body.String()),
 		)
 
-		// Log the response with correlation ID
-		logger.InfoContext(ctx, fmt.Sprintf("HTTP response final %s", r.URL),
+		// Determine if the response is an error based on status code
+		isResponseError := rw.statusCode >= 400
+		responseLogLevel := slog.LevelInfo
+		if isResponseError {
+			responseLogLevel = slog.LevelWarn
+		}
+
+		// Log the response
+		logger.Log(ctx,
+			responseLogLevel,
+			fmt.Sprintf("HTTP response final %s", r.URL),
 			appendHeader([]any{
 				"response.status", rw.statusCode,
-				"response.body", rw.body.String(),
-			}, "response.", rw.Header())...,
-		)
+				"response.body", rw.body.String()},
+				"response.",
+				rw.Header())...)
+
 		// Set span status based on HTTP status code
-		if rw.statusCode >= 400 {
+		if isResponseError {
 			span.SetAttributes(attribute.Bool("error", true))
 		}
 	})
