@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Datastar SDK Demo</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@5"
+      rel="stylesheet"
+      type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- <script
+      type="module"
+      src="https://cdn.jsdelivr.net/gh/starfederation/datastar@v1.0.0-beta.11/bundles/datastar.js"></script> -->
+    <script type="module" src="./datastar.rc.11.js"></script>
+  </head>
+  <body class="p-6">
+    <input class="input input-neutral" data-bind-myinput />
+
+    <div class="my-6" data-signals="{fetching: false}" data-show="$fetching">
+      loading...
+    </div>
+
+    <p class="my-6" data-text="$myinput"></p>
+
+    <button class="btn btn-neutral" data-on-click="$myinput = ''">
+      Reset on Client
+    </button>
+    <button
+      class="btn btn-primary"
+      data-on-click="@post('/actions/setinput?clientTime='+Date.now())"
+      data-indicator="fetching">
+      Get Server Time
+    </button>
+    <button class="btn btn-warning" data-on-click="@post('/actions/notfound')">
+      Not Found
+    </button>
+  </body>
+</html>

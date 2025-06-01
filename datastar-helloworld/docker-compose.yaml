@@ -1,0 +1,24 @@
+version: "3"
+services:
+  victoria-logs:
+    image: victoriametrics/victoria-logs:latest
+    container_name: victoria-logs
+    ports:
+      - "9428:9428"
+    volumes:
+      - ./victoria-logs-data:/victoria-logs-data
+
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    container_name: otel-collector
+    ports:
+      - "4317:4317" # OTLP gRPC
+      - "4318:4318" # OTLP HTTP
+      #- "8888:8888" # Metrics
+      #- "13133:13133" # Health check
+    volumes:
+      - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
+    command:
+      - "--config=/etc/otel-collector-config.yaml"
+    # depends_on:
+    #   - victoria-logs

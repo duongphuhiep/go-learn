@@ -8,72 +8,11 @@ import (
 	"strconv"
 	"time"
 
-	"go.opentelemetry.io/contrib/bridges/otelslog"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
-	otlogsdk "go.opentelemetry.io/otel/sdk/log"
-	"go.opentelemetry.io/otel/sdk/resource"
-	"go.opentelemetry.io/otel/sdk/trace"
-	"go.opentelemetry.io/otel/sdk/trace/tracetest"
-	semconv "go.opentelemetry.io/otel/semconv/v1.4.0"
-
-	_ "embed"
 	"net/http"
 
-	m "github.com/duongphuhiep/datastar-helloworld/middlewares"
+	"github.com/duongphuhiep/datastar-helloworld/pkg/toolspack"
 	datastar "github.com/starfederation/datastar/sdk/go"
 )
-
-//go:embed hello-world.html
-var helloWorldHTML []byte
-
-// initTracer initializes OpenTelemetry tracing
-func initTracer() func() {
-	// exporter, err := stdouttrace.New(stdouttrace.WithPrettyPrint())
-	// if err != nil {
-	// 	panic(err)
-	// }
-	exporter := tracetest.NewNoopExporter()
-	tp := trace.NewTracerProvider(
-		trace.WithBatcher(exporter),
-		trace.WithResource(resource.NewWithAttributes(
-			semconv.SchemaURL,
-			semconv.ServiceNameKey.String("http-api"),
-			semconv.ServiceVersionKey.String("1.0.0"),
-		)),
-	)
-
-	//tp := oteltracenoop.NewTracerProvider()
-	otel.SetTracerProvider(tp)
-
-	return func() {
-		tp.Shutdown(context.Background())
-	}
-}
-
-func initLogger(ctx context.Context) func() {
-	//Set up OTLP exporter
-	exporter, err := otlploggrpc.New(ctx,
-		otlploggrpc.WithInsecure(),
-	)
-	if err != nil {
-		panic(err)
-	}
-
-	processor := otlogsdk.NewBatchProcessor(exporter)
-	provider := otlogsdk.NewLoggerProvider(otlogsdk.WithProcessor(processor))
-
-	// 3. Bridge OpenTelemetry with slog
-	otelLogger := otelslog.NewLogger("otel-logger", otelslog.WithLoggerProvider(provider))
-
-	slog.SetDefault(otelLogger)
-
-	return func() {
-		if err := provider.Shutdown(ctx); err != nil {
-			panic(err)
-		}
-	}
-}
 
 var globalReqId = 0
 
@@ -110,23 +49,25 @@ func setInputHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	w.Write(helloWorldHTML)
+	http.Redirect(w, r, "./web/hello-world.html", http.StatusFound)
 }
 
 func main() {
 	ctx := context.Background()
 
-	tracerDispose := initTracer()
+	tracerDispose := toolspack.InitTracer()
 	defer tracerDispose()
 
-	loggerDispose := initLogger(ctx)
+	loggerDispose := toolspack.InitOtelLogger(ctx)
 	defer loggerDispose()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /", homeHandler)
 
 	// Apply LoggingMiddleware only to /actions/setinput
-	mux.Handle("POST /actions/setinput", m.LoggingMiddleware(http.HandlerFunc(setInputHandler)))
+	mux.Handle("POST /actions/setinput", toolspack.LoggingMiddleware(http.HandlerFunc(setInputHandler)))
+
+	mux.Handle("GET /web/", http.StripPrefix("/web/", http.FileServer(http.Dir("web"))))
 
 	slog.Info("Starting server on :8080")
 	http.ListenAndServe(":8080", mux)
